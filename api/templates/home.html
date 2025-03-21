@@ -13,7 +13,10 @@
         height: 100%;
         z-index: -1;
     }
-
+    canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
     /* Hero Section */
     .hero-section {
         text-align: center;
@@ -78,6 +81,32 @@
         transform: scale(1.05);
         box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
     }
+     /* Responsive Design */
+     @media (max-width: 768px) {
+        .hero-section {
+            padding: 6rem 1rem;
+        }
+        .glitch-title {
+            font-size: 2.3rem;
+        }
+        .cta-button {
+            font-size: 1rem;
+            padding: 0.8rem 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-section {
+            padding: 5rem 1rem;
+        }
+        .glitch-title {
+            font-size: 1.8rem;
+        }
+        .cta-button {
+            font-size: 0.9rem;
+            padding: 0.7rem 1.2rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -121,7 +150,7 @@
         document.getElementById('three-container').appendChild(renderer.domElement);
 
         // Create a 3D Shape
-        const geometry = new THREE.IcosahedronGeometry(2, 1);
+        const geometry = new THREE.IcosahedronGeometry(2,1);
         const material = new THREE.MeshPhongMaterial({
             color: primaryColor,
             wireframe: true,
@@ -135,8 +164,8 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            mesh.rotation.x += 0.01;
-            mesh.rotation.y += 0.01;
+            mesh.rotation.x += 0.005;
+            mesh.rotation.y += 0.005;
             renderer.render(scene, camera);
         }
         animate();
