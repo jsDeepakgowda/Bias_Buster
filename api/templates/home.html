@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - BiasBuster{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Background Containers */
+    #three-container, #particles-js {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        text-align: center;
+        padding: 15rem 2rem;
+        margin-top: 80px;
+    }
+
+    /* Glitch Title Effect */
+    .glitch-title {
+        font-size: 4rem;
+        background: linear-gradient(45deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: text-glitch 3s infinite;
+        margin-bottom: 1.5rem;
+    }
+
+    @keyframes text-glitch {
+        0%, 100% { transform: translate(0); }
+        20% { transform: translate(-2px, 2px); }
+        40% { transform: translate(-2px, -2px); }
+        60% { transform: translate(2px, 2px); }
+        80% { transform: translate(2px, -2px); }
+    }
+
+    /* Call-to-Action Button */
+    .cta-button {
+        background: linear-gradient(45deg, var(--primary), var(--accent));
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-button::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.2), 
+            transparent);
+        transform: rotate(45deg);
+        animation: button-glow 2s infinite;
+    }
+
+    @keyframes button-glow {
+        0% { transform: translateX(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .cta-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Background Containers -->
+<div id="three-container"></div>
+<div id="particles-js"></div>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <h1 class="glitch-title">MEDIA TRUTH DECONSTRUCTOR</h1>
+    <p>AI-Powered News Neutralization System</p>
+    <a href="{% url 'analyse' %}" class="cta-button">INITIALIZE ANALYSIS</a>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script>
+    let particlesInstance;
+    let scene, camera, renderer, mesh;
+
+    function initializeBackground(theme) {
+        const primaryColor = theme === 'light' ? 0x4f46e5 : 0x6366f1;
+
+        // Remove previous Three.js instance
+        if (renderer) {
+            renderer.domElement.remove();
+            renderer = null;
+            scene = null;
+            camera = null;
+            mesh = null;
+        }
+
+        // Create Three.js Scene
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('three-container').appendChild(renderer.domElement);
+
+        // Create a 3D Shape
+        const geometry = new THREE.IcosahedronGeometry(2, 1);
+        const material = new THREE.MeshPhongMaterial({
+            color: primaryColor,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+
+        mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Remove existing Particles.js instance
+        if (particlesInstance) {
+            particlesInstance.pJS.fn.vendors.destroy();
+        }
+
+        // Initialize Particles.js
+        particlesInstance = particlesJS('particles-js', {
+            particles: {
+                number: { value: 150, density: { enable: true, value_area: 800 } },
+                color: { value: theme === 'light' ? '#4f46e5' : '#6366f1' }, 
+                shape: { type: 'circle' },
+                opacity: { value: 0.5 },
+                size: { value: 3 },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: 'window',
+                events: {
+                    onhover: { enable: true, mode: 'repulse' },
+                    onclick: { enable: true, mode: 'push' }
+                }
+            }
+        });
+    }
+
+    // Initialize with current theme
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    initializeBackground(currentTheme);
+
+    // Listen for theme changes
+    document.addEventListener('themeChanged', (e) => {
+        initializeBackground(e.detail);
+    });
+
+    // Navbar Scroll Effect
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('.cyber-nav');
+        const bgAlpha = window.scrollY > 50 ? 0.95 : 0.9;
+        nav.style.background = `rgba(var(--nav-bg-rgb), ${bgAlpha})`;
+        nav.style.backdropFilter = `blur(${window.scrollY > 50 ? '20px' : '15px'})`;
+    });
+
+    // Window Resize Event
+    window.addEventListener('resize', () => {
+        if (camera && renderer) {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    });
+</script>
+{% endblock %}
